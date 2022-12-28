@@ -1,5 +1,6 @@
 ﻿using GoogleApi.Common;
 using GoogleApi.Models;
+using GoogleApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -47,6 +48,7 @@ namespace GoogleApi.Controllers
                     {
                         ViewBag.AccessToken = token.access_token;
                         ViewBag.RefreshToken = token.refresh_token;
+                        var gmailService = GoogleEmailService.GetGmailService(token.refresh_token);
                     }
                 }
                 if (!string.IsNullOrEmpty(error))
