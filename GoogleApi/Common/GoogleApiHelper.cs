@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -14,6 +15,30 @@ namespace GoogleApi.Common
         public static string RedirectUri = "https://localhost:44334/Home/OauthCallback";
         public static string OauthUri = "https://accounts.google.com/o/oauth2/auth?";
         public static string TokenUri = "https://accounts.google.com/o/oauth2/token";
+
+        public static byte[] FromBase64UrlDecode(string input)
+        {
+            var output = input;
+            output = output.Replace('-', '+');
+            output = output.Replace('_', '/');
+
+            switch (output.Length % 4)
+            {
+                case 0:
+                    break;
+                case 2:
+                    output += "==";
+                    break;
+                case 3:
+                    output += "=";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(input), "Illegal base64url string!");
+            }
+
+            var converted = Convert.FromBase64String(output);
+            return converted;
+        }
 
         public static List<string> GetScopes()
         {
