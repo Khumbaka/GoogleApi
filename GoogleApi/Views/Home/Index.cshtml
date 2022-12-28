@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3 mt-3">
+        <div class="card">
+            <div class="card-header">Google Authentication Using ASP.NET Core</div>
+            <div class="card-body primary">
+                <form asp-action="Authenticate" method="post">
+                    <div class="form-group">
+                        <label for="email" class="sr-only">Email</label>
+                        <input name="email" id="email" class="form-control" placeholder="Email" />
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="submit" value="Authenticate" name="save" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>

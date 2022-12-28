@@ -1,0 +1,15 @@
+﻿
+@{
+    ViewData["Title"] = "OauthCallback";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3 mt-3">
+        <div class="card">
+            <div class="card-header">@ViewBag.MailAddress</div>
+            <div class="card-header">@ViewBag.AccessToken</div>
+            <div class="card-header">@ViewBag.RefreshToken</div>
+            <div class="card-header">@ViewBag.Error</div>
+        </div>
+    </div>
+</div>
