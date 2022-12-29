@@ -3,6 +3,7 @@ using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using GoogleApi.Common;
 using GoogleApi.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace GoogleApi.Services
 {
     public class GoogleEmailService
     {
+        public static string NextPageToken = null;
+
         public static GmailService GetGmailService(string refreshToken)
         {
             GmailService gmailService = null;
@@ -31,51 +34,65 @@ namespace GoogleApi.Services
             List<GoogleEmail> googleEmails = new List<GoogleEmail>();
 
             var gmailService = GetGmailService(refreshToken);
-            var emailListRequest = gmailService.Users.Messages.List("me");
-            emailListRequest.LabelIds = "INBOX";
-            emailListRequest.IncludeSpamTrash = false;
-            var emailListResponse = await emailListRequest.ExecuteAsync();
 
-            if (emailListResponse != null && emailListResponse.Messages != null)
+            do
             {
-                foreach (var email in emailListResponse.Messages)
+                var emailListRequest = gmailService.Users.Messages.List("me");
+                emailListRequest.LabelIds = "INBOX";
+                emailListRequest.Q = "category:primary";
+                emailListRequest.IncludeSpamTrash = false;
+                if (NextPageToken != null) emailListRequest.PageToken = NextPageToken;
+                var emailListResponse = await emailListRequest.ExecuteAsync();
+
+                if (emailListResponse != null && emailListResponse.Messages != null)
                 {
-                    GoogleEmail googleEmail = new GoogleEmail();
-                    var emailInfoRequest = gmailService.Users.Messages.Get("me", email.Id);
-                    var emailInfoResponse = await emailInfoRequest.ExecuteAsync();
-                    if (emailInfoResponse != null)
+                    foreach (var email in emailListResponse.Messages)
                     {
-                        foreach (var mailParts in emailInfoResponse.Payload.Headers)
+                        GoogleEmail googleEmail = new GoogleEmail();
+                        googleEmail.MessageId = email.Id;
+
+                        var emailInfoRequest = gmailService.Users.Messages.Get("me", email.Id);
+                        var emailInfoResponse = await emailInfoRequest.ExecuteAsync();
+                        if (emailInfoResponse != null)
                         {
-                            if (mailParts.Name == "Date")
+                            if (emailInfoResponse.InternalDate.HasValue)
                             {
-                                googleEmail.Date = mailParts.Value;
+                                googleEmail.Date = DateTimeOffset.FromUnixTimeMilliseconds(emailInfoResponse.InternalDate.Value).DateTime;
                             }
-                            else if (mailParts.Name == "Subject")
+
+                            foreach (var mailParts in emailInfoResponse.Payload.Headers)
                             {
-                                googleEmail.Subject = mailParts.Value;
-                            }
-                            else if (mailParts.Name == "From")
-                            {
-                                googleEmail.From = mailParts.Value;
-                            }
-                            if (!string.IsNullOrEmpty(googleEmail.Date) && !string.IsNullOrEmpty(googleEmail.From) && emailInfoResponse.Payload.Parts != null)
-                            {
-                                foreach (MessagePart messagePart in emailInfoResponse.Payload.Parts)
+                                if (mailParts.Name == "Subject")
                                 {
-                                    if(messagePart.MimeType == "text/html")
+                                    googleEmail.Subject = mailParts.Value;
+                                }
+                                else if (mailParts.Name == "From")
+                                {
+                                    googleEmail.From = mailParts.Value;
+                                }
+                                //else if (mailParts.Name == "Date")
+                                //{
+                                //    googleEmail.Date = DateTime.Parse(mailParts.Value);
+                                //}
+                                if (googleEmail.Date != null && !string.IsNullOrEmpty(googleEmail.From) && emailInfoResponse.Payload.Parts != null)
+                                {
+                                    foreach (MessagePart messagePart in emailInfoResponse.Payload.Parts)
                                     {
-                                        byte[] data = GoogleApiHelper.FromBase64UrlDecode(messagePart.Body.Data);
-                                        string decodeString = Encoding.UTF8.GetString(data);
-                                        googleEmail.Body = decodeString;
+                                        if (messagePart.MimeType == "text/html")
+                                        {
+                                            byte[] data = GoogleApiHelper.FromBase64UrlDecode(messagePart.Body.Data);
+                                            string decodeString = Encoding.UTF8.GetString(data);
+                                            googleEmail.Body = decodeString;
+                                        }
                                     }
                                 }
                             }
                         }
+                        googleEmails.Add(googleEmail);
                     }
-                    googleEmails.Add(googleEmail);
+                    NextPageToken = emailListResponse.NextPageToken;
                 }
-            }
+            } while (NextPageToken != null);
 
             return googleEmails;
         }

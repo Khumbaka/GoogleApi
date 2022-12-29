@@ -27,6 +27,7 @@ namespace GoogleApi
         {
             services.AddDbContext<GoogleDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddSession();
             services.AddControllersWithViews();
         }
 
@@ -49,6 +50,8 @@ namespace GoogleApi
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,0 +1,15 @@
+﻿@model GoogleEmail
+
+@{
+    ViewData["Title"] = "BodyEmail";
+}
+
+<h1>@Model.Subject</h1>
+
+<div class="row">
+    <div class="col-md-10 offset-md-1 mt-3">
+        <div>
+            @Html.Raw(Model.Body)
+        </div>
+    </div>
+</div>

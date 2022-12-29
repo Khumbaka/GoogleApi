@@ -1,6 +1,7 @@
 ﻿using GoogleApi.Common;
 using GoogleApi.Models;
 using GoogleApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -48,12 +49,13 @@ namespace GoogleApi.Controllers
                     {
                         ViewBag.AccessToken = token.access_token;
                         ViewBag.RefreshToken = token.refresh_token;
-                        var gmailService = GoogleEmailService.GetGmailService(token.refresh_token);
+                        HttpContext.Session.SetString("RefreshToken", token.refresh_token);
+                        ViewBag.Message = "Authorization Successfull";
                     }
                 }
                 if (!string.IsNullOrEmpty(error))
                 {
-                    ViewBag.Message = "Error " + error;
+                    ViewBag.Error = "Error " + error;
                 }
                 if (!string.IsNullOrEmpty(state))
                 {

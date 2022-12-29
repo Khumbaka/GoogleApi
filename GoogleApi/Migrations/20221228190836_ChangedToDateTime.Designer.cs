@@ -4,14 +4,16 @@ using GoogleApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GoogleApi.Migrations
 {
     [DbContext(typeof(GoogleDbContext))]
-    partial class GoogleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221228190836_ChangedToDateTime")]
+    partial class ChangedToDateTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

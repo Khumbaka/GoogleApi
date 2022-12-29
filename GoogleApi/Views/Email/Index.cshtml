@@ -1,0 +1,51 @@
+﻿@model IEnumerable<GoogleEmail>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-md-10 offset-md-1 mt-3 mb-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <a id="ImportEmail" asp-action="ImportEmail" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-pencil"></i> Import Email
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10 offset-md-1 mt-3">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>From</th>
+                    <th>Date</th>
+                    <th>Body</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Subject)</td>
+                        <td>@Html.DisplayFor(modelItem => item.From)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Date)</td>
+                        <td>
+                            @*@Html.Raw(item.Body)*@
+                            @if (item.Body != null)
+                            {
+                                <a id="ImportEmail" asp-action="BodyEmail" asp-route-id="@item.Id" class="btn btn-primary" target="_blank">
+                                    <i class="glyphicon glyphicon-pencil"></i> Body
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
